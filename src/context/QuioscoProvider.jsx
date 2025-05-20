@@ -16,8 +16,13 @@ const QuioscoProvider = ({children}) => {
         setTotal(nuevoTotal);
     }, [pedido]);
     const obtenerCategorias = async () => {
+        const token = localStorage.getItem('AUTH_TOKEN');
         try {
-            const {data} = await clienteAxios('/categorias');
+            const {data} = await clienteAxios('/categorias', {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
             setCategorias(data.data);
             setCategoriaActual(data.data[0]);
         } catch (e) {
@@ -83,6 +88,38 @@ const QuioscoProvider = ({children}) => {
             console.log(e);
         }
     }
+    const handleClickCompletarPedido = async id => {
+        const token = localStorage.getItem('AUTH_TOKEN');
+        try {
+            const {data} = await clienteAxios.put(`/pedidos/${id}`, null, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            toast.success(data.message);
+            setTimeout(() => {
+                setPedido([]);
+            }, 1000);
+        } catch (e) {
+            console.log(e);
+        }
+    }
+    const handleClickProductoAgotado = async id => {
+        const token = localStorage.getItem('AUTH_TOKEN');
+        try {
+            const {data} = await clienteAxios.put(`/productos/${id}`, null, {
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+            toast.success(data.message);
+            setTimeout(() => {
+                setPedido([]);
+            }, 1000);
+        } catch (e) {
+            console.log(e);
+        }
+    }
     return (
         <QuioscoContext.Provider
             value={{
@@ -98,7 +135,9 @@ const QuioscoProvider = ({children}) => {
                 handleEditarCantidad,
                 handleEliminarProductoPedido,
                 total,
-                handleSubmitNuevaOrden
+                handleSubmitNuevaOrden,
+                handleClickCompletarPedido,
+                handleClickProductoAgotado
             }}
         >
             {children}
